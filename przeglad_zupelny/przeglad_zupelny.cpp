@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include <iostream>
 #include "przeglad_zupelny.h"
 #include <algorithm>
@@ -7,43 +7,54 @@
 using namespace std;
 
 
-int cmax(int ex[4], int tm1[4], int tm2[4], int tm3[4]) {
-	int Cm1[5], Cm2[5], Cm3[5];
-	Cm1[0] = 0;
-		//pierwsza maszyna
-		for (int j = 1; j <= 4; j++) {
-			Cm1[j] = max(Cm1[j - 1],0) + tm1[ex[j-1]-1];
+int cmax(int ex[],int **macierz, int **Cm, int number_of_ex,int n_m) {
+	int n_ex=number_of_ex+1;
+	for (int i = 0; i <= n_m; i++) Cm[0][i] = 0;
+	for (int i = 0; i < n_ex; i++) Cm[i][0] = 0;
+	for (int i = 1; i <= n_m; i++){ //vdvdc
+		for (int j = 1; j <= number_of_ex; j++) {
+			Cm[j][i] = max(Cm[j][i - 1], Cm[j-1][i]) + macierz[ex[j - 1]-1][i-1];
+			//cout << "Cm[" << j << "][" << i << "] = " << Cm[j][i];
 		}
-		//druga maszyna
-		for (int j = 1; j <= 4; j++) {
-			Cm2[j] = max(Cm2[j - 1], Cm1[j]) + tm2[ex[j - 1] - 1];
-		}
-		//trzecia maszyna
-		for (int j = 1; j <= 4; j++) {
-			Cm3[j] = max(Cm3[j - 1], Cm2[j]) + tm3[ex[j - 1] - 1];
-		}
-		return Cm3[4];
+		
+	}
+		return Cm[n_ex-1][n_m];
 	
 }
 int main()
 {
-	int number_of_ex,n_m,ex[4],t_m1[10],t_m2[10],t_m3[10];
+	int number_of_ex, n_m;
 	ifstream data("data.txt");
 	data >> number_of_ex;
+	int * ex = new int[number_of_ex];
 	data >> n_m;
-	for (int i = 1; i <= number_of_ex; i++) {
-		ex[i - 1] = i;
-		data >> t_m1[i - 1] >> t_m2[i - 1] >> t_m3[i - 1];
+	int **macierz = new int * [number_of_ex];
+	int **Cm = new int *[number_of_ex + 1];
+	for (int j = 0; j < number_of_ex+1; j++) Cm[j] = new int[n_m+1];
+	for (int j = 0; j < number_of_ex; j++) {
+		ex[j] = j+1;
+		macierz[j] = new int[n_m];
+		for(int i=0;i<n_m;i++)
+		data >> macierz[j][i];
 	}
 	data.close();
-
+	// wyswietlenie
+	/*for (int i = 0; i < number_of_ex; ++i)
+	{
+		for (int j = 0; j < n_m; ++j)
+			cout << macierz[i][j] << " ";
+		cout << "\n";
+	}*/int number=1;
 		cout << "The 3! possible permutations with 3 elements:\n";
 		do {
+			cout << number << ". ";
 			for (int i = 0; i < number_of_ex; i++) cout << ex[i]<<' ';
 			int Cmax;
-			Cmax = cmax(ex,t_m1,t_m2,t_m3);
+			Cmax = cmax(ex,macierz,Cm,number_of_ex,n_m);
 			cout << "Cmax= " << Cmax;
 			cout << '\n';
+			number++;
 		} while (next_permutation(ex, ex + number_of_ex));
 }
+
 
